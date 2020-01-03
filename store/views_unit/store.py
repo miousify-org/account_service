@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
 from ..models import MStore
 from ..utility.miousify_tower import start_trial_server_for_store, deactivate_server, activate_server
-
+from ..utility.miousify_store_resource import  delete_store_and_commit
 
 def _get_store(request: HttpRequest, store_domain):
     # get store details
@@ -63,8 +63,6 @@ def _login(request: HttpRequest):
             "isValid": True
         }
 
-
-
         auth_cert= {
             "miousify_domain_name": store.miousify_domain_name,
             "email": store.email,
@@ -72,12 +70,7 @@ def _login(request: HttpRequest):
         }
         return JsonResponse(data=auth_cert);
 
-    print(check);
-
     return HttpResponse(str(check));
-
-    pass
-
 
 def _check_domain(request: HttpRequest, domain_name):
     store = get_object_or_404(MStore, pk=domain_name)
@@ -85,3 +78,14 @@ def _check_domain(request: HttpRequest, domain_name):
     if bool(store.miousify_domain_name) is True:
         return HttpResponse("Exists")
     pass
+
+
+def _delete_store(req, store_domain):
+    try:
+        check= delete_store_and_commit(store_domain);
+
+        return HttpResponse(check);
+    except Exception as ex:
+        print("could not delete")
+        raise ex;
+

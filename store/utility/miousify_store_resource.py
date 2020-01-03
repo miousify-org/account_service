@@ -11,8 +11,7 @@ def create_store_and_commit( miousify_domain_name, phone, email, password):
     created_store_data = createStoreResource(email=email, miousify_domain_name=miousify_domain_name);
 
     if created_store_data == False:
-        print("did not create store");
-        raise Exception("Did not create store successfully unknow error");
+        raise Exception("Did not create store successfully  fault from miousify resource service");
     # key reference in database
     try:
         #save
@@ -52,5 +51,16 @@ def createStoreResource(email, miousify_domain_name):
         return False
 
 
-def delete_store ():
-    pass
+
+
+def delete_store_and_commit(miousify_domain_name):
+
+    store = get_object_or_404(MStore, pk=miousify_domain_name);
+
+    response = request("DELETE", miousify_server_endpoint+"/store/"+store.miousify_store_resource_id);
+
+    if response.status_code == 200:
+        store.delete();
+        return True;
+    else:
+        return False

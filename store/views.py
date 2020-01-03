@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import make_password, check_password
 from .models import MStore
 
+
 # Create your views_unit here.
 
 def stores_route(request: HttpRequest):
@@ -19,47 +20,73 @@ def stores_route(request: HttpRequest):
         pass
     pass
 
+
 def stores_post(request: HttpRequest):
-    print("about to create store")
     # create store
-    password = request.POST.get('password')
+    password = None
+    email = None;
+    miousify_domain_name = None
+
+    try:
+        password = request.POST['password']
+    except Exception as ex:
+        raise ex;
+        respone = HttpResponse("Password needed");
+        respone.status_code(400);
+    try:
+        email = request.POST['email']
+    except Exception as ex:
+        raise ex;
+        respone = HttpResponse("Email needed");
+        respone.status_code(400);
+        return HttpResponse();
+
+    try:
+        miousify_domain_name = request.POST['miousify_domain_name']
+    except Exception as ex:
+        respone = HttpResponse("miousify_domain_name needed");
+        respone.status_code = 400;
+        raise ex;
+
     hashed_password = make_password(password=password);
+
     # don't implement yet
-    email = request.POST.get('email');
     phone = request.POST.get('phone');
-    miousify_domain_name = request.POST.get('miousify_domain_name')
 
     try:
         domain = MStore.objects.get(miousify_domain_name=miousify_domain_name);
-        print(domain);
-        return HttpResponse("Store aleady exists");
+        response = HttpResponse("Store aleady exists");
+        respone.status_code=403
+        return respone;
         pass
     except ObjectDoesNotExist:
-        # can continue
-        # do nothing
-        print("store does not exist with name")
+        print("Expected Exception Can creat store")
         pass
 
     # check if store with domain name already exist
     try:
         created_store = create_store_and_commit(email=email, miousify_domain_name=miousify_domain_name, phone=phone,
-                                 password=hashed_password);
-
-        if created_store == True:
+                                                password=hashed_password);
+        if created_store is True:
             print("Created successfully");
             return HttpResponse("created");
         else:
-            return JsonResponse(data=False);
+            respone = JsonResponse(data=False)
+            respone.status_code = 500
+            return respone
         pass
     except Exception as exceptio:
-        print(exceptio)
-        return HttpResponse("did not create store successfully")
+        raise exceptio;
+        response = HttpResponse("did not create store successfully try again or contact supports")
+        response.status_code = 500
+        return response
+
 
 def stores_get(request: HttpRequest):
     # get stores list
-    stores= []
+    stores = []
     try:
-        stores=  MStore.objects.all();
+        stores = MStore.objects.all();
     except Exception:
         print("no stores available")
         return HttpResponse("no stores available")

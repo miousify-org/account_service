@@ -5,7 +5,7 @@ from .views import stores_route
 urlpatterns = [
     path('', stores_route, name="store-entrance-list"),
 
-    path('login/', store._login), # working
+    path('login/', store._login), # working working
 
     path('check-domain-name/<domain_name>', store._check_domain),# working
 
@@ -16,4 +16,7 @@ urlpatterns = [
     path('<store_domain>/actions/activate', store._activate_store),#
 
     path('<store_domain>/actions/deactivate', store._deactivate_store),#
+
+    path('<store_domain>/actions/delete', store._delete_store),  # working
+
 ]
